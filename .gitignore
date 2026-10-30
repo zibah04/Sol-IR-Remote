@@ -10,3 +10,4 @@ local.properties
 
 # Small downloadable development build; refreshed by scripts/package-apk.sh
 !downloads/Sols-Living-Room-debug.apk
+__pycache__/

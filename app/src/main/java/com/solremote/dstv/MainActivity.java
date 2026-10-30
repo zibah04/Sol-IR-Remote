@@ -111,7 +111,7 @@ public class MainActivity extends Activity {
     }
 
     private void styleButton(Button b, int color, int radius, int stroke) {
-        b.setBackground(new RippleDrawable(ColorStateList.valueOf(dark ? 0x24FFFFFF : 0x18315137),
+        b.setBackground(new RippleDrawable(ColorStateList.valueOf(dark ? 0x24FFFFFF : 0x1876551F),
                 shape(color, radius, stroke), null));
     }
 
@@ -119,6 +119,7 @@ public class MainActivity extends Activity {
         Button b = baseButton(title, description, size);
         styleButton(b, primary ? accent : raised, 18, primary ? 0 : border);
         b.setTextColor(primary ? background : ink);
+        if (!dark) b.setElevation(dp(primary ? 2 : 1));
         b.setEnabled(ready() && patterns.containsKey(command));
         // Keep the remote legible on devices without an emitter; status explains availability.
         if (!patterns.containsKey(command)) {
@@ -138,14 +139,14 @@ public class MainActivity extends Activity {
                 (getResources().getConfiguration().uiMode &
                 android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
                 android.content.res.Configuration.UI_MODE_NIGHT_YES);
-        background = Color.parseColor(dark ? "#101412" : "#F5F4EE");
-        surface = Color.parseColor(dark ? "#1B211D" : "#E9EDE3");
-        raised = Color.parseColor(dark ? "#262E28" : "#FAFBF7");
-        border = Color.parseColor(dark ? "#364138" : "#C8D1C3");
-        accent = Color.parseColor(dark ? "#D8E7B9" : "#315137");
-        ink = Color.parseColor(dark ? "#F0F2E9" : "#1E2C20");
-        muted = Color.parseColor(dark ? "#A3AEA1" : "#566650");
-        warning = Color.parseColor(dark ? "#E8C593" : "#77501C");
+        background = Color.parseColor(dark ? "#101412" : "#F6F2EB");
+        surface = Color.parseColor(dark ? "#1B211D" : "#E9E1D5");
+        raised = Color.parseColor(dark ? "#262E28" : "#FFFDFA");
+        border = Color.parseColor(dark ? "#364138" : "#CFC2B0");
+        accent = Color.parseColor(dark ? "#D8E7B9" : "#76551F");
+        ink = Color.parseColor(dark ? "#F0F2E9" : "#2D2821");
+        muted = Color.parseColor(dark ? "#A3AEA1" : "#6D6254");
+        warning = Color.parseColor(dark ? "#E8C593" : "#825015");
         getWindow().setStatusBarColor(background);
         getWindow().setNavigationBarColor(background);
         int flags = dark ? 0 : View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;

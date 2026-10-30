@@ -7,19 +7,19 @@ Unofficial offline Android infrared remote for the **DStv HD 8S**, designed for 
 - Source code and GitHub Actions APK build workflow are present.
 - Debug APK builds and Android lint have passed in the cloud environment. The app has launched in an Android 11 emulator; IR transmission still needs a physical phone with an IR blaster.
 - The source IR file contains 20 commands. The user confirmed that the original extended remote file controls decoder navigation and Volume Down, and the replacement **Pronto Volume Up** command works in IR Blaster Remote.
-- The number pad displays **0–9**, with signals for every digit. Codes for 0 and 2–9 were copied from the user-supplied `dstv_8s_with_full_keypad.ir` and still need decoder testing. The existing code for 1 was preserved; the upload contains a different waveform for that digit. All buttons require a phone with an IR blaster.
+- The number pad displays **0–9**, with signals for every digit. Codes for 0 and 2–9 were copied from the user-supplied `dstv_8s_with_full_keypad.ir` and still need decoder testing. Version 1.0.1 replaces the malformed 33-bit code for 1 with the 32-bit waveform from that same upload, after a phone test showed the old code sending 0. This replacement still needs confirmation on the decoder. All buttons require a phone with an IR blaster.
 - LG TV support is planned. No LG signal file is bundled yet; the current controls operate the DStv decoder only.
 - Android IR transmission may behave differently from the original IR Blaster Remote app; test on the phone.
 
 ## Interface
 
-Sol’s Living Room uses native Android controls, system fonts, and vector graphics, with no additional UI dependencies. The handset-style layout keeps Info/Exit, a circular directional pad, volume controls, and the complete numeric keypad together. It retains the charcoal and sage style, adds a light palette, and includes the `zibah@2026` footer. The appearance button offers device setting, Light, or Dark; the preference is saved locally. The layout scrolls on smaller displays. LG TV is marked as not added until its model and IR signals are available. The requested reference model is AD1700; exact button placement has not yet been checked against a photograph.
+Sol’s Living Room uses native Android controls, system fonts, and vector graphics, with no additional UI dependencies. The handset-style layout keeps Info/Exit, a circular directional pad, volume controls, and the complete numeric keypad together. It retains the charcoal and sage style, adds a warm ivory palette with brass accents and off-white keys, and includes the `zibah@2026` footer. The appearance button offers device setting, Light, or Dark; the preference is saved locally. The layout scrolls on smaller displays. LG TV is marked as not added until its model and IR signals are available. The requested reference model is AD1700; exact button placement has not yet been checked against a photograph.
 
 ## Download the current development build
 
 [Download Sol’s Living Room APK](https://raw.githubusercontent.com/zibah04/Sol-IR-Remote/sols-living-room/downloads/Sols-Living-Room-debug.apk)
 
-This direct link downloads the debug APK from the `sols-living-room` branch, outside the cloud preview pane. The matching SHA-256 digest is in `downloads/SHA256SUMS`. To refresh it after a code change, run `bash scripts/package-apk.sh` and commit the updated APK and checksum together with the source. This is a development build for testing on your IR-equipped phone.
+This direct link downloads the debug APK from the `sols-living-room` branch, outside the cloud preview pane. The matching SHA-256 digest is in `downloads/SHA256SUMS`. The current version is **1.0.1** (version code 2). To refresh it after a code change, run `bash scripts/package-apk.sh` and commit the updated APK and checksum together with the source. This is a development build for testing on your IR-equipped phone.
 
 ## Build APK in GitHub Actions
 
@@ -40,3 +40,7 @@ Build command for Android Studio or Codex: `gradle :app:assembleDebug --no-daemo
 - `CODEX_PROMPT.md` — next steps for Codex.
 
 Not affiliated with or endorsed by MultiChoice / DStv.
+
+## IR regression checks
+
+Run `python3 -m unittest discover -s tests -v`. These check that all ten digits are present, have 32-bit frames, and encode the digit printed on the button. Packaging and CI run these checks before building. They verify signal structure, not physical decoder response.

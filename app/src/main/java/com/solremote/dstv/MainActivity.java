@@ -127,8 +127,9 @@ public class MainActivity extends Activity {
                 String command = group[i].isEmpty() ? null : group[i];
                 String display = command == null ? "" : command
                     .replace("VOL_PLUS","VOL +").replace("VOL_MINUS","VOL −")
-                    .replace("NUM_1","1").replace("UP","▲").replace("DOWN","▼")
+                    .replace("UP","▲").replace("DOWN","▼")
                     .replace("LEFT","◀").replace("RIGHT","▶");
+                if (command != null && command.startsWith("NUM_")) display = command.substring(4);
                 button(r,display,command);
             }
         }
@@ -156,7 +157,11 @@ public class MainActivity extends Activity {
             new String[]{"LEFT","OK","RIGHT"},
             new String[]{"INFO","DOWN","EXIT"});
         section(main,"VOLUME",new String[]{"VOL_MINUS","MUTE","VOL_PLUS"});
-        section(main,"NUMBERS",new String[]{"","NUM_1",""});
+        section(main,"NUMBERS",
+            new String[]{"NUM_1","NUM_2","NUM_3"},
+            new String[]{"NUM_4","NUM_5","NUM_6"},
+            new String[]{"NUM_7","NUM_8","NUM_9"},
+            new String[]{"","NUM_0",""});
         TextView foot=label("Uses captured/tested IR codes. Unofficial DStv remote.",12,Color.LTGRAY);
         LinearLayout.LayoutParams fp=new LinearLayout.LayoutParams(-1,-2);
         fp.setMargins(0,dp(25),0,0);

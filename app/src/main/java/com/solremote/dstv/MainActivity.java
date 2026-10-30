@@ -113,6 +113,9 @@ public class MainActivity extends Activity {
     private void styleButton(Button b, int color, int radius, int stroke) {
         b.setBackground(new RippleDrawable(ColorStateList.valueOf(dark ? 0x24FFFFFF : 0x1876551F),
                 shape(color, radius, stroke), null));
+        // Keep device button styles from tinting our custom key surfaces.
+        b.setBackgroundTintList(null);
+        if (android.os.Build.VERSION.SDK_INT >= 29) b.setForceDarkAllowed(false);
     }
 
     private Button control(String title, String command, String description, int size, boolean primary) {
@@ -278,7 +281,14 @@ public class MainActivity extends Activity {
     }
 
     private void weighted(LinearLayout row, View child, int height, boolean trailingGap) {
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, dp(height), 1);
+        int keyHeight = dp(height);
+        if (child instanceof TextView) {
+            TextView label = (TextView) child;
+            android.graphics.Paint.FontMetricsInt metrics = label.getPaint().getFontMetricsInt();
+            keyHeight = Math.max(keyHeight, metrics.bottom - metrics.top +
+                    label.getPaddingTop() + label.getPaddingBottom() + dp(4));
+        }
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, keyHeight, 1);
         if (trailingGap) p.setMarginEnd(dp(10));
         row.addView(child, p);
     }
@@ -289,11 +299,18 @@ public class MainActivity extends Activity {
             for (int c = 0; c < 3; c++) {
                 int n = r * 3 + c + 1;
                 if (r == 3 && c != 1) {
-                    weighted(line, new View(this), 48, c < 2);
+                    weighted(line, new View(this), 56, c < 2);
                 } else {
                     if (r == 3) n = 0;
-                    weighted(line, control(Integer.toString(n), "NUM_" + n,
-                            "Number " + n, 22, false), 48, c < 2);
+                    Button digit = control(Integer.toString(n), "NUM_" + n,
+                            "Number " + n, 28, false);
+                    digit.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
+                    digit.setIncludeFontPadding(true);
+                    digit.setTextColor(ColorStateList.valueOf(
+                            Color.parseColor(dark ? "#FFFFFF" : "#17120D")));
+                    styleButton(digit, Color.parseColor(dark ? "#2C382F" : "#FFFFFF"),
+                            18, Color.parseColor(dark ? "#7F907D" : "#9A8464"));
+                    weighted(line, digit, 56, c < 2);
                 }
             }
             add(keypadPanel, line, -2);

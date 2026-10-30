@@ -4,7 +4,7 @@
     <uses-feature android:name="android.hardware.consumerir" android:required="false" />
     <application
         android:allowBackup="false"
-        android:label="Sol IR Remote"
+        android:label="Sol’s Living Room"
         android:icon="@drawable/ic_launcher"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
         android:supportsRtl="true">

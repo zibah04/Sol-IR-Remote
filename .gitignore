@@ -7,3 +7,6 @@ local.properties
 .idea/
 *.apk
 *.aab
+
+# Small downloadable development build; refreshed by scripts/package-apk.sh
+!downloads/Sols-Living-Room-debug.apk

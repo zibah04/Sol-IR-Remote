@@ -20,5 +20,6 @@ jobs:
         run: gradle :app:assembleDebug --no-daemon
       - uses: actions/upload-artifact@v4
         with:
-          name: SolIRRemote-debug-apk
+          name: Sols-Living-Room-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

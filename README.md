@@ -13,13 +13,13 @@ Unofficial offline Android infrared remote for the **DStv HD 8S**, designed for 
 
 ## Interface
 
-Sol’s Living Room uses native Android controls, system fonts, and vector graphics, with no additional UI dependencies. The handset-style layout keeps Info/Exit, a circular directional pad, volume controls, and the complete numeric keypad together. It retains the charcoal and sage style, adds a warm ivory palette with brass accents and off-white keys, and includes the `zibah@2026` footer. Numeric keys use large bold labels, explicit high-contrast colours, and distinct outlines in both palettes. Key heights expand with the phone’s text size to keep labels visible. The appearance button offers device setting, Light, or Dark; the preference is saved locally. The layout scrolls on smaller displays. LG TV is marked as not added until its model and IR signals are available. The requested reference model is AD1700; exact button placement has not yet been checked against a photograph.
+Sol’s Living Room uses native Android controls, system fonts, and vector graphics, with no additional UI dependencies. The handset-style layout keeps Info/Exit, a circular directional pad, volume controls, and the complete numeric keypad together. It retains the charcoal and sage style, adds a warm ivory palette with brass accents and off-white keys, and includes the `zibah@2026` footer. Numeric keys draw bold digit outlines directly, rather than inheriting device Button text styling. The app opts out of automatic dark recolouring on Android 10 and newer. Both palettes retain explicit high-contrast colours and distinct key outlines. Key heights expand with the phone’s text size to keep labels visible. The appearance button offers device setting, Light, or Dark; the preference is saved locally. The layout scrolls on smaller displays. LG TV is marked as not added until its model and IR signals are available. The requested reference model is AD1700; exact button placement has not yet been checked against a photograph.
 
 ## Download the current development build
 
 [Download Sol’s Living Room APK](https://raw.githubusercontent.com/zibah04/Sol-IR-Remote/sols-living-room/downloads/Sols-Living-Room-debug.apk)
 
-This direct link downloads the debug APK from the `sols-living-room` branch, outside the cloud preview pane. The matching SHA-256 digest is in `downloads/SHA256SUMS`. The current version is **1.0.2** (version code 3). To refresh it after a code change, run `bash scripts/package-apk.sh` and commit the updated APK and checksum together with the source. This is a development build for testing on your IR-equipped phone.
+This direct link downloads the debug APK from the `sols-living-room` branch, outside the cloud preview pane. The matching SHA-256 digest is in `downloads/SHA256SUMS`. The current version is **1.0.3** (version code 4). To refresh it after a code change, run `bash scripts/package-apk.sh` and commit the updated APK and checksum together with the source. This is a development build for testing on your IR-equipped phone.
 
 ## Build APK in GitHub Actions
 
@@ -44,3 +44,18 @@ Not affiliated with or endorsed by MultiChoice / DStv.
 ## IR regression checks
 
 Run `python3 -m unittest discover -s tests -v`. These check that all ten digits are present, have 32-bit frames, and encode the digit printed on the button. Packaging and CI run these checks before building. They verify signal structure, not physical decoder response.
+
+## Native digit rendering checks
+
+The separate Android test APK includes `DigitRenderingInstrumentation`. It renders each digit in both palettes, enabled and disabled, at normal and enlarged text sizes (80 checks), and checks glyph visibility, clipping, and accessibility state. It adds no dependencies or test code to the distributed app.
+
+With the Android toolchain activated and an emulator connected:
+
+```sh
+gradle :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+adb shell am instrument -w com.solremote.dstv.test/com.solremote.dstv.DigitRenderingInstrumentation
+```
+
+Require `status=passed`, `render_checks=80`, and instrumentation result code `-1`. Device-specific rendering still needs confirmation on the user's phone.

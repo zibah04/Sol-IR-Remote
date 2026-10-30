@@ -110,7 +110,7 @@ public class MainActivity extends Activity {
         return b;
     }
 
-    private void styleButton(Button b, int color, int radius, int stroke) {
+    private void styleButton(View b, int color, int radius, int stroke) {
         b.setBackground(new RippleDrawable(ColorStateList.valueOf(dark ? 0x24FFFFFF : 0x1876551F),
                 shape(color, radius, stroke), null));
         // Keep device button styles from tinting our custom key surfaces.
@@ -123,17 +123,21 @@ public class MainActivity extends Activity {
         styleButton(b, primary ? accent : raised, 18, primary ? 0 : border);
         b.setTextColor(primary ? background : ink);
         if (!dark) b.setElevation(dp(primary ? 2 : 1));
-        b.setEnabled(ready() && patterns.containsKey(command));
+        bindCommand(b, command, description);
+        return b;
+    }
+
+    private void bindCommand(View key, String command, String description) {
+        key.setEnabled(ready() && patterns.containsKey(command));
         // Keep the remote legible on devices without an emitter; status explains availability.
         if (!patterns.containsKey(command)) {
-            b.setAlpha(0.35f);
-            b.setContentDescription(description + ": IR code not added yet");
+            key.setAlpha(0.35f);
+            key.setContentDescription(description + ": IR code not added yet");
         }
-        b.setOnClickListener(v -> {
+        key.setOnClickListener(v -> {
             v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
             send(command);
         });
-        return b;
     }
 
     private void configurePalette() {
@@ -281,7 +285,7 @@ public class MainActivity extends Activity {
     }
 
     private void weighted(LinearLayout row, View child, int height, boolean trailingGap) {
-        int keyHeight = dp(height);
+        int keyHeight = Math.max(dp(height), child.getMinimumHeight());
         if (child instanceof TextView) {
             TextView label = (TextView) child;
             android.graphics.Paint.FontMetricsInt metrics = label.getPaint().getFontMetricsInt();
@@ -302,14 +306,12 @@ public class MainActivity extends Activity {
                     weighted(line, new View(this), 56, c < 2);
                 } else {
                     if (r == 3) n = 0;
-                    Button digit = control(Integer.toString(n), "NUM_" + n,
-                            "Number " + n, 28, false);
-                    digit.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
-                    digit.setIncludeFontPadding(true);
-                    digit.setTextColor(ColorStateList.valueOf(
-                            Color.parseColor(dark ? "#FFFFFF" : "#17120D")));
+                    DigitKeyView digit = new DigitKeyView(this, n,
+                            Color.parseColor(dark ? "#FFFFFF" : "#17120D"));
                     styleButton(digit, Color.parseColor(dark ? "#2C382F" : "#FFFFFF"),
                             18, Color.parseColor(dark ? "#7F907D" : "#9A8464"));
+                    if (!dark) digit.setElevation(dp(1));
+                    bindCommand(digit, "NUM_" + n, "Number " + n);
                     weighted(line, digit, 56, c < 2);
                 }
             }

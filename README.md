@@ -7,7 +7,7 @@ Unofficial offline Android infrared remote for the **DStv HD 8S**, designed for 
 - Source code and GitHub Actions APK build workflow are present.
 - **Not yet compiled or tested as a standalone APK.**
 - The source IR file contains 11 commands. The user confirmed that the original extended remote file controls decoder navigation and Volume Down, and the replacement **Pronto Volume Up** command works in IR Blaster Remote.
-- The Android app currently displays only **1** in the number pad because other numeric codes have not yet been merged/tested.
+- The Android app now has a complete **0–9 keypad**. Number 1 was confirmed working; the nine newly added A6 Mode 1 digit codes are **unverified on the HD 8S** and should be tested in the existing IR Blaster Remote app.
 - Android IR transmission may behave differently from the original IR Blaster Remote app; test on the phone.
 
 ## Build APK in GitHub Actions

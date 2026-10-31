@@ -10,9 +10,9 @@ android {
         applicationId 'com.solremote.dstv'
         minSdk 23
         targetSdk 33
-        versionCode 4
-        versionName '1.0.3'
-        testInstrumentationRunner 'com.solremote.dstv.DigitRenderingInstrumentation'
+        versionCode 5
+        versionName '1.1.0'
+        testInstrumentationRunner (project.findProperty('testRunner') ?: 'com.solremote.dstv.DigitRenderingInstrumentation')
     }
 
     compileOptions {

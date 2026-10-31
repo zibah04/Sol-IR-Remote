@@ -1,25 +1,25 @@
 # Sol’s Living Room
 
-Unofficial offline Android infrared remote for the **DStv HD 8S**, designed for the **Xiaomi Mi 10T** and other Android devices with a compatible IR blaster.
+Unofficial offline Android infrared remotes for the **DStv HD 8S** and **LG TV**, designed for the **Xiaomi Mi 10T** and other Android devices with a compatible IR blaster.
 
 ## Current status
 
 - Source code and GitHub Actions APK build workflow are present.
 - Debug APK builds and Android lint have passed in the cloud environment. The app has launched in an Android 11 emulator; IR transmission still needs a physical phone with an IR blaster.
-- The source IR file contains 20 commands. The user confirmed that the original extended remote file controls decoder navigation and Volume Down, and the replacement **Pronto Volume Up** command works in IR Blaster Remote.
+- The DStv source IR file contains 20 commands. The user confirmed that the original extended remote file controls decoder navigation and Volume Down, and the replacement **Pronto Volume Up** command works in IR Blaster Remote.
 - The number pad displays **0–9**, with signals for every digit. Codes for 0 and 2–9 were copied from the user-supplied `dstv_8s_with_full_keypad.ir` and still need decoder testing. Version 1.0.1 replaces the malformed 33-bit code for 1 with the 32-bit waveform from that same upload, after a phone test showed the old code sending 0. This replacement still needs confirmation on the decoder. All buttons require a phone with an IR blaster.
-- LG TV support is planned. No LG signal file is bundled yet; the current controls operate the DStv decoder only.
+- A separate LG TV page uses the user-supplied `lg_60la6208_tv_ir_test.ir` exactly as uploaded: 29 raw commands for the LG 60LA6208 test profile. The file is experimental and still needs confirmation on the physical television. Its signals are kept separate from the DStv map.
 - Android IR transmission may behave differently from the original IR Blaster Remote app; test on the phone.
 
 ## Interface
 
-Sol’s Living Room uses native Android controls, system fonts, and vector graphics, with no additional UI dependencies. The handset-style layout keeps Info/Exit, a circular directional pad, volume controls, and the complete numeric keypad together. It retains the charcoal and sage style, adds a warm ivory palette with brass accents and off-white keys, and includes the `zibah@2026` footer. Numeric keys draw bold digit outlines directly, rather than inheriting device Button text styling. The app opts out of automatic dark recolouring on Android 10 and newer. Both palettes retain explicit high-contrast colours and distinct key outlines. Key heights expand with the phone’s text size to keep labels visible. The appearance button offers device setting, Light, or Dark; the preference is saved locally. The layout scrolls on smaller displays. LG TV is marked as not added until its model and IR signals are available. The requested reference model is AD1700; exact button placement has not yet been checked against a photograph.
+Sol’s Living Room uses native Android controls, system fonts, and vector graphics, with no additional UI dependencies. The handset-style layout keeps Info/Exit, a circular directional pad, volume controls, and the complete numeric keypad together. It retains the charcoal and sage style, adds a warm ivory palette with brass accents and off-white keys, and includes the `zibah@2026` footer. Numeric keys draw bold digit outlines directly, rather than inheriting device Button text styling. The app opts out of automatic dark recolouring on Android 10 and newer. Both palettes retain explicit high-contrast colours and distinct key outlines. Key heights expand with the phone’s text size to keep labels visible. The appearance button offers device setting, Light, or Dark; the preference is saved locally. The layout scrolls on smaller displays. The app opens a device chooser with DStv and LG TV cards. Use the phone’s Back button to return to the chooser; LG also has a Switch remote button. The original DStv activity, digit renderer, and IR asset were preserved without modification when adding LG. The requested reference model is AD1700; exact button placement has not yet been checked against a photograph.
 
 ## Download the current development build
 
 [Download Sol’s Living Room APK](https://raw.githubusercontent.com/zibah04/Sol-IR-Remote/sols-living-room/downloads/Sols-Living-Room-debug.apk)
 
-This direct link downloads the debug APK from the `sols-living-room` branch, outside the cloud preview pane. The matching SHA-256 digest is in `downloads/SHA256SUMS`. The current version is **1.0.3** (version code 4). To refresh it after a code change, run `bash scripts/package-apk.sh` and commit the updated APK and checksum together with the source. This is a development build for testing on your IR-equipped phone.
+This direct link downloads the debug APK from the `sols-living-room` branch, outside the cloud preview pane. The matching SHA-256 digest is in `downloads/SHA256SUMS`. The current version is **1.1.0** (version code 5). To refresh it after a code change, run `bash scripts/package-apk.sh` and commit the updated APK and checksum together with the source. This is a development build for testing on your IR-equipped phone.
 
 ## Build APK in GitHub Actions
 
@@ -34,6 +34,9 @@ Build command for Android Studio or Codex: `gradle :app:assembleDebug --no-daemo
 ## Project files
 
 - `app/src/main/assets/dstv_8s_final_working.ir` — IR signals. **Do not change the working VOL_PLUS and VOL_MINUS timing arrays without testing.**
+- `app/src/main/assets/lg_60la6208_tv_ir_test.ir` — unmodified user-provided LG test signals.
+- `app/src/main/java/com/solremote/dstv/LgTvActivity.java` — separate LG page and signal map.
+- `app/src/main/java/com/solremote/dstv/RoomHomeActivity.java` — device chooser.
 - `app/src/main/java/com/solremote/dstv/MainActivity.java` — offline Android UI and IR sender using `ConsumerIrManager`.
 - `app/src/main/AndroidManifest.xml` — IR permission, no internet permission.
 - `.github/workflows/build-debug-apk.yml` — automated debug APK build.
@@ -59,3 +62,15 @@ adb shell am instrument -w com.solremote.dstv.test/com.solremote.dstv.DigitRende
 ```
 
 Require `status=passed`, `render_checks=80`, and instrumentation result code `-1`. Device-specific rendering still needs confirmation on the user's phone.
+
+## Device navigation checks
+
+The separate `DeviceNavigationInstrumentation` runner opens DStv → LG → DStv through the actual chooser cards, checks the LG switch button and every LG command binding, and verifies that all DStv waveforms remain unchanged after switching. Run it after installing the app and Android test APK:
+
+```sh
+gradle :app:assembleDebugAndroidTest -PtestRunner=com.solremote.dstv.DeviceNavigationInstrumentation --no-daemon
+adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+adb shell am instrument -w com.solremote.dstv.test/com.solremote.dstv.DeviceNavigationInstrumentation
+```
+
+Require `status=passed`, `remote_open_checks=3`, `dstv_signals=20`, `lg_signals=29`, `dstv_after_switch=unchanged`, and instrumentation code `-1`.

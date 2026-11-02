@@ -115,6 +115,28 @@ public class MainActivity extends Activity {
         row.addView(b,p);
     }
 
+    private String displayName(String command) {
+        if (command == null) return "";
+        if (command.startsWith("NUM_")) return command.substring(4);
+        switch (command) {
+            case "POWER": return "Power";
+            case "DSTV_MENU": return "DStv";
+            case "TV_GUIDE": return "Guide";
+            case "OPTIONS": return "Options";
+            case "CHANNEL_UP": return "CH +";
+            case "CHANNEL_DOWN": return "CH −";
+            case "EXIT": return "Back / Exit";
+            case "VOL_PLUS": return "VOL +";
+            case "VOL_MINUS": return "VOL −";
+            case "MUTE": return "Mute";
+            case "UP": return "▲";
+            case "DOWN": return "▼";
+            case "LEFT": return "◀";
+            case "RIGHT": return "▶";
+            default: return command;
+        }
+    }
+
     private void section(LinearLayout parent, String title, String[]... groups) {
         TextView header = label(title,14,accent);
         header.setGravity(Gravity.START);
@@ -125,12 +147,7 @@ public class MainActivity extends Activity {
             LinearLayout r=row(parent);
             for (int i=0;i<group.length;i++) {
                 String command = group[i].isEmpty() ? null : group[i];
-                String display = command == null ? "" : command
-                    .replace("VOL_PLUS","VOL +").replace("VOL_MINUS","VOL −")
-                    .replace("UP","▲").replace("DOWN","▼")
-                    .replace("LEFT","◀").replace("RIGHT","▶");
-                if (command != null && command.startsWith("NUM_")) display = command.substring(4);
-                button(r,display,command);
+                button(r,displayName(command),command);
             }
         }
     }
@@ -152,6 +169,10 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams sp = new LinearLayout.LayoutParams(-1,-2);
         sp.setMargins(0,dp(16),0,0);
         main.addView(status,sp);
+        section(main,"DECODER",
+            new String[]{"POWER","DSTV_MENU","TV_GUIDE"});
+        section(main,"CHANNELS & OPTIONS",
+            new String[]{"CHANNEL_DOWN","OPTIONS","CHANNEL_UP"});
         section(main,"NAVIGATION",
             new String[]{"","UP",""},
             new String[]{"LEFT","OK","RIGHT"},

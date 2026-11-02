@@ -7,11 +7,11 @@ android {
     compileSdk 35
 
     defaultConfig {
-        applicationId 'com.solremote.dstv'
+        applicationId 'com.solremote.livingroom'
         minSdk 23
         targetSdk 33
-        versionCode 5
-        versionName '1.1.0'
+        versionCode 6
+        versionName '1.2.0'
         testInstrumentationRunner (project.findProperty('testRunner') ?: 'com.solremote.dstv.DigitRenderingInstrumentation')
     }
 

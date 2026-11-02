@@ -288,16 +288,40 @@ public class LgTvActivity extends Activity {
         weighted(utility, control("Info", "INFO", "TV information", 13, false), 48, false);
         add(parent, utility, -2);
         gap(parent, 12);
-        LinearLayout sound = row();
-        weighted(sound, control("−", "VOL_MINUS", "Volume down", 26, false), 56, true);
-        weighted(sound, control("Mute", "MUTE", "Mute", 13, false), 56, true);
-        weighted(sound, control("+", "VOL_PLUS", "Volume up", 24, false), 56, false);
-        add(parent, sound, -2);
-        gap(parent, 8);
-        LinearLayout channels = row();
-        weighted(channels, control("CH −", "CHANNEL_MINUS", "TV channel down", 14, false), 48, true);
-        weighted(channels, control("CH +", "CHANNEL_PLUS", "TV channel up", 14, false), 48, false);
-        add(parent, channels, -2);
+        LinearLayout rockers = row();
+        rockers.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        rockers.setGravity(Gravity.TOP);
+        addRocker(rockers, "VOL", "VOL_PLUS", "VOL_MINUS", "Volume", true);
+        addRocker(rockers, "CH", "CHANNEL_PLUS", "CHANNEL_MINUS", "Channel", false);
+        add(parent, rockers, -2);
+        gap(parent, 10);
+        add(parent, control("Mute", "MUTE", "Mute", 13, false), 48);
+    }
+
+    /** Physical remote order: volume on the left, channel on the right. */
+    private void addRocker(LinearLayout parent, String title, String up, String down,
+            String description, boolean trailingGap) {
+        LinearLayout group = column();
+        TextView heading = eyebrow(title);
+        heading.setGravity(Gravity.CENTER);
+        heading.setTextColor(accent);
+        markHeading(heading);
+        add(group, heading, -2);
+        gap(group, 8);
+        addRockerKey(group, "+", up, description + " up");
+        gap(group, 8);
+        addRockerKey(group, "−", down, description + " down");
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, -2, 1);
+        if (trailingGap) p.setMarginEnd(dp(14));
+        parent.addView(group, p);
+    }
+
+    private void addRockerKey(LinearLayout parent, String label, String command, String description) {
+        Button key = control(label, command, description, 27, false);
+        android.graphics.Paint.FontMetricsInt metrics = key.getPaint().getFontMetricsInt();
+        int height = Math.max(dp(64), metrics.bottom - metrics.top +
+                key.getPaddingTop() + key.getPaddingBottom() + dp(4));
+        parent.addView(key, new LinearLayout.LayoutParams(-1, height));
     }
 
     private void direction(FrameLayout pad, String title, String command, String description, int gravity) {

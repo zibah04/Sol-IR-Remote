@@ -128,6 +128,7 @@ public class MainActivity extends Activity {
     }
 
     private void bindCommand(View key, String command, String description) {
+        key.setTag(command);
         key.setEnabled(ready() && patterns.containsKey(command));
         // Keep the remote legible on devices without an emitter; status explains availability.
         if (!patterns.containsKey(command)) {
@@ -141,7 +142,7 @@ public class MainActivity extends Activity {
     }
 
     private void configurePalette() {
-        int mode = getPreferences(MODE_PRIVATE).getInt("theme", 0);
+        int mode = getSharedPreferences("MainActivity", MODE_PRIVATE).getInt("theme", 0);
         dark = mode == 2 || (mode == 0 &&
                 (getResources().getConfiguration().uiMode &
                 android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
@@ -167,14 +168,14 @@ public class MainActivity extends Activity {
     }
 
     private void chooseTheme() {
-        int mode = getPreferences(MODE_PRIVATE).getInt("theme", 0);
+        int mode = getSharedPreferences("MainActivity", MODE_PRIVATE).getInt("theme", 0);
         new android.app.AlertDialog.Builder(this, dark ?
                 android.R.style.Theme_Material_Dialog_Alert :
                 android.R.style.Theme_Material_Light_Dialog_Alert)
                 .setTitle("Appearance")
                 .setSingleChoiceItems(new String[]{"Use device setting", "Light", "Dark"}, mode,
                     (dialog, selected) -> {
-                        getPreferences(MODE_PRIVATE).edit().putInt("theme", selected).apply();
+                        getSharedPreferences("MainActivity", MODE_PRIVATE).edit().putInt("theme", selected).apply();
                         dialog.dismiss();
                         recreate();
                     })
@@ -241,16 +242,31 @@ public class MainActivity extends Activity {
         foot.setGravity(Gravity.CENTER);
         add(handset, foot, -2);
         gap(main, 16);
-        TextView coming = text("LG TV · Not added", 11, muted);
+        TextView coming = text("DStv HD 8S · Captured IR codes", 11, muted);
         coming.setGravity(Gravity.CENTER);
         add(main, coming, -2);
+        gap(main, 12);
+        Button devices = baseButton("Switch remote", "Choose a different remote", 13);
+        styleButton(devices, surface, 18, border);
+        devices.setOnClickListener(v -> finish());
+        main.addView(devices, new LinearLayout.LayoutParams(width, dp(48)));
         setContentView(scroll);
     }
 
     private void drawRemote(LinearLayout parent) {
+        LinearLayout decoder = row();
+        weighted(decoder, control("Power", "POWER", "Decoder power", 13, true), 48, true);
+        weighted(decoder, control("DStv", "DSTV_MENU", "DStv menu", 13, false), 48, false);
+        add(parent, decoder, -2);
+        gap(parent, 8);
+        LinearLayout services = row();
+        weighted(services, control("Guide", "TV_GUIDE", "Decoder TV guide", 13, false), 48, true);
+        weighted(services, control("Options", "OPTIONS", "Decoder options", 13, false), 48, false);
+        add(parent, services, -2);
+        gap(parent, 8);
         LinearLayout shortcuts = row();
         weighted(shortcuts, control("Info", "INFO", "Programme information", 13, false), 48, true);
-        weighted(shortcuts, control("Exit", "EXIT", "Back or exit", 13, false), 48, false);
+        weighted(shortcuts, control("Back / Exit", "EXIT", "Back or exit", 13, false), 48, false);
         add(parent, shortcuts, -2);
         gap(parent, 16);
         int size = Math.min(dp(232), getResources().getDisplayMetrics().widthPixels - dp(80));
@@ -269,11 +285,40 @@ public class MainActivity extends Activity {
         styleButton(ok, accent, 60, 0);
         pad.addView(ok, new FrameLayout.LayoutParams(dp(80), dp(80), Gravity.CENTER));
         gap(parent, 16);
-        LinearLayout sound = row();
-        weighted(sound, control("−", "VOL_MINUS", "Volume down", 26, false), 56, true);
-        weighted(sound, control("Mute", "MUTE", "Mute", 13, false), 56, true);
-        weighted(sound, control("+", "VOL_PLUS", "Volume up", 24, false), 56, false);
-        add(parent, sound, -2);
+        LinearLayout rockers = row();
+        rockers.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        rockers.setGravity(Gravity.TOP);
+        addRocker(rockers, "VOL", "VOL_PLUS", "VOL_MINUS", "Volume", true);
+        addRocker(rockers, "CH", "CHANNEL_UP", "CHANNEL_DOWN", "Channel", false);
+        add(parent, rockers, -2);
+        gap(parent, 10);
+        add(parent, control("Mute", "MUTE", "Mute", 13, false), 48);
+    }
+
+    /** Physical remote order: volume on the left, channel on the right. */
+    private void addRocker(LinearLayout parent, String title, String up, String down,
+            String description, boolean trailingGap) {
+        LinearLayout group = column();
+        TextView heading = eyebrow(title);
+        heading.setGravity(Gravity.CENTER);
+        heading.setTextColor(accent);
+        markHeading(heading);
+        add(group, heading, -2);
+        gap(group, 8);
+        addRockerKey(group, "+", up, description + " up");
+        gap(group, 8);
+        addRockerKey(group, "−", down, description + " down");
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, -2, 1);
+        if (trailingGap) p.setMarginEnd(dp(14));
+        parent.addView(group, p);
+    }
+
+    private void addRockerKey(LinearLayout parent, String label, String command, String description) {
+        Button key = control(label, command, description, 27, false);
+        android.graphics.Paint.FontMetricsInt metrics = key.getPaint().getFontMetricsInt();
+        int height = Math.max(dp(64), metrics.bottom - metrics.top +
+                key.getPaddingTop() + key.getPaddingBottom() + dp(4));
+        parent.addView(key, new LinearLayout.LayoutParams(-1, height));
     }
 
     private void direction(FrameLayout pad, String title, String command, String description, int gravity) {

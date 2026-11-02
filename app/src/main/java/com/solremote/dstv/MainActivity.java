@@ -152,6 +152,75 @@ public class MainActivity extends Activity {
         }
     }
 
+    /**
+     * Two tall, side-by-side rockers to match the physical DStv remote layout.
+     * This changes only the visual presentation; the existing IR signal keys
+     * and waveforms are reused without modification.
+     */
+    private void rockerButton(LinearLayout container, String symbol, String command,
+                              String description) {
+        Button b = new Button(this);
+        b.setAllCaps(false);
+        b.setText(symbol);
+        b.setTextSize(27);
+        b.setTypeface(null, Typeface.BOLD);
+        b.setTextColor(Color.WHITE);
+        b.setContentDescription(description);
+        b.setBackground(shape(Color.rgb(36, 53, 73)));
+        LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(-1, dp(67));
+        params.setMargins(dp(4), dp(4), dp(4), dp(4));
+        b.setEnabled(ready() && patterns.containsKey(command));
+        b.setOnClickListener(v -> send(command));
+        container.addView(b, params);
+    }
+
+    private void rocker(LinearLayout container, String name,
+                        String upCommand, String downCommand) {
+        LinearLayout group = new LinearLayout(this);
+        group.setOrientation(LinearLayout.VERTICAL);
+        group.setPadding(dp(8), dp(10), dp(8), dp(10));
+        group.setBackground(shape(panel));
+
+        LinearLayout.LayoutParams groupParams =
+                new LinearLayout.LayoutParams(0, -2, 1);
+        groupParams.setMargins(dp(4), 0, dp(4), 0);
+        container.addView(group, groupParams);
+
+        TextView heading = label(name, 13, accent);
+        heading.setTypeface(null, Typeface.BOLD);
+        LinearLayout.LayoutParams headingParams =
+                new LinearLayout.LayoutParams(-1, dp(28));
+        group.addView(heading, headingParams);
+
+        rockerButton(group, "+", upCommand, name + " up");
+        View divider = new View(this);
+        divider.setBackgroundColor(Color.rgb(73, 90, 110));
+        LinearLayout.LayoutParams dividerParams =
+                new LinearLayout.LayoutParams(-1, dp(1));
+        dividerParams.setMargins(dp(14), 0, dp(14), 0);
+        group.addView(divider, dividerParams);
+        rockerButton(group, "−", downCommand, name + " down");
+    }
+
+    private void volumeAndChannelRockers(LinearLayout parent) {
+        TextView heading = label("VOLUME & CHANNEL", 14, accent);
+        heading.setGravity(Gravity.START);
+        LinearLayout.LayoutParams headerParams =
+                new LinearLayout.LayoutParams(-1, -2);
+        headerParams.setMargins(0, dp(20), 0, dp(8));
+        parent.addView(heading, headerParams);
+
+        LinearLayout rockers = new LinearLayout(this);
+        rockers.setOrientation(LinearLayout.HORIZONTAL);
+        rockers.setGravity(Gravity.TOP);
+        parent.addView(rockers, new LinearLayout.LayoutParams(-1, -2));
+
+        // Physical-remote arrangement: volume on the left, channel on the right.
+        rocker(rockers, "VOL", "VOL_PLUS", "VOL_MINUS");
+        rocker(rockers, "CH", "CHANNEL_UP", "CHANNEL_DOWN");
+    }
+
     private void draw() {
         ScrollView scroll = new ScrollView(this);
         scroll.setBackgroundColor(background);
@@ -171,13 +240,13 @@ public class MainActivity extends Activity {
         main.addView(status,sp);
         section(main,"DECODER",
             new String[]{"POWER","DSTV_MENU","TV_GUIDE"});
-        section(main,"CHANNELS & OPTIONS",
-            new String[]{"CHANNEL_DOWN","OPTIONS","CHANNEL_UP"});
         section(main,"NAVIGATION",
             new String[]{"","UP",""},
             new String[]{"LEFT","OK","RIGHT"},
             new String[]{"INFO","DOWN","EXIT"});
-        section(main,"VOLUME",new String[]{"VOL_MINUS","MUTE","VOL_PLUS"});
+        volumeAndChannelRockers(main);
+        section(main,"QUICK CONTROLS",
+            new String[]{"MUTE","OPTIONS"});
         section(main,"NUMBERS",
             new String[]{"NUM_1","NUM_2","NUM_3"},
             new String[]{"NUM_4","NUM_5","NUM_6"},

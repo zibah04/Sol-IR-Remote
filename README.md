@@ -6,8 +6,9 @@ Unofficial offline Android infrared remote for the **DStv HD 8S**, designed for 
 
 - Source code and GitHub Actions APK build workflow are present.
 - **Not yet compiled or tested as a standalone APK.**
-- The source IR file contains 11 commands. The user confirmed that the original extended remote file controls decoder navigation and Volume Down, and the replacement **Pronto Volume Up** command works in IR Blaster Remote.
-- The Android app now has a complete **0–9 keypad**. Number 1 was confirmed working; the nine newly added A6 Mode 1 digit codes are **unverified on the HD 8S** and should be tested in the existing IR Blaster Remote app.
+- The DStv IR asset now contains **26 commands**. All previously present 20 waveforms are unchanged, including the confirmed-working alternative **Pronto Volume Up** and the working **Volume Down**.
+- The Android app includes a **0–9 keypad**. Number 1 was confirmed working; digits 0 and 2–9 still need testing on the HD 8S.
+- **Six additional commands confirmed working in IR Blaster Remote:** Power, DStv Menu, TV Guide, Channel Up, Channel Down, and Options. The UI reuses the existing working EXIT signal as **Back / Exit** (no duplicate code).
 - Android IR transmission may behave differently from the original IR Blaster Remote app; test on the phone.
 
 ## Build APK in GitHub Actions
@@ -22,7 +23,7 @@ Build command for Android Studio or Codex: `gradle :app:assembleDebug --no-daemo
 
 ## Project files
 
-- `app/src/main/assets/dstv_8s_final_working.ir` — IR signals. **Do not change the working VOL_PLUS and VOL_MINUS timing arrays without testing.**
+- `app/src/main/assets/dstv_8s_final_working.ir` — 26 IR signals. **Preserve all previously tested working signals, especially VOL_PLUS, VOL_MINUS, and EXIT.**
 - `app/src/main/java/com/solremote/dstv/MainActivity.java` — offline Android UI and IR sender using `ConsumerIrManager`.
 - `app/src/main/AndroidManifest.xml` — IR permission, no internet permission.
 - `.github/workflows/build-debug-apk.yml` — automated debug APK build.
